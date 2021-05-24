@@ -30,7 +30,13 @@ public class CorRepositoryPersistent implements CorRepository{
 	
 	private void abrirConexão() {
 		try {
-			conexão = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/adsis3s2021","sa","");	//Url / Usuario padrão do h2/ senha
+			try {
+				conexão = DriverManager.getConnection("jdbc:h2:~/adsis3s2021","sa","");	//forçar a criação caso não exista
+				conexão.close();
+			} catch (Exception e) {
+				System.out.println("hehe. Já tava criado");
+			}
+			conexão = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/adsis3s2021","sa","");	//Url / Usuario padrão do h2/ senha. Modo Servidor
 			PreparedStatement psCreateTable =  conexão.prepareStatement("create table if not exists cor ("
 					+ "nome varchar(255) not null, "
 					+ "sigla varchar(30) not null"
