@@ -4,7 +4,7 @@ public class Livro extends Publicação {
 	private int edição;
 
 	public Livro(String título) {
-		super(título);
+		super(título);		//se refere ao título usado na superclasse
 	}
 
 	public Livro(String título, int edição) {

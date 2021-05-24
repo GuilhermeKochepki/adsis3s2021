@@ -3,8 +3,6 @@ package meu.aula20210503.hierarquia;
 import java.util.ArrayList;
 import java.util.List;
 
-import aula20210503.hierarquias.Publicação;
-
 public class Biblioteca {
 	private List<Publicação> acervo = new ArrayList<>();
 	
