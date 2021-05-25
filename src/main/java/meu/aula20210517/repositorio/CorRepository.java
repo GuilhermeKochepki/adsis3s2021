@@ -6,6 +6,8 @@ package meu.aula20210517.repositorio;
 import java.util.List;
 
 public interface CorRepository {
+	
+	void atualizar(Cor nova);
 
 	void salvar(Cor nova);
 

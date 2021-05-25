@@ -39,7 +39,8 @@ public class CorRepositoryPersistent implements CorRepository{
 			conexão = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/adsis3s2021","sa","");	//Url / Usuario padrão do h2/ senha. Modo Servidor
 			PreparedStatement psCreateTable =  conexão.prepareStatement("create table if not exists cor ("
 					+ "nome varchar(255) not null, "
-					+ "sigla varchar(30) not null"
+					+ "sigla varchar(30) not null, "
+					+ "primary key(sigla)"
 					+ ")");
 			psCreateTable.execute();
 			psCreateTable.close();
@@ -62,8 +63,27 @@ public class CorRepositoryPersistent implements CorRepository{
 		}
 	}
 
+	public void atualizar(Cor cor) {
+		try {
+			PreparedStatement psUpdate = conexão.prepareStatement("update cor set nome = ? where sigla = ?");
+			psUpdate.setString(1, cor.getNome());
+			psUpdate.setString(2, cor.getSigla());
+			psUpdate.execute();
+			psUpdate.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void excluir(Cor cor) {
-		
+		try {
+			PreparedStatement psDelete = conexão.prepareStatement("delete from cor where sigla = ?");
+			psDelete.setString(1, cor.getSigla());
+			psDelete.execute();
+			psDelete.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public List<Cor> obterTodas() {
