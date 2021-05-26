@@ -40,7 +40,21 @@ public class ProdutoRepositoryPersistent implements ProdutoRepository {
 	}
 
 	public void atualizar(Produto novo) {
-			
+		
+		try {
+			PreparedStatement psInserir = banco.prepareStatement("update produto set marca = ?, modelo = ?, quantidade = ? where codigo = ?");
+			//PreparedStatement psInserir = banco.prepareStatement("update produto set marca = ? where sigla = ?");
+			//PreparedStatement psInserir = banco.prepareStatement("update produto set modelo = ? where sigla = ?");
+			//PreparedStatement psInserir = banco.prepareStatement("update produto set quantidade = ? where sigla = ?");
+			psInserir.setString(1, novo.getMarca());
+			psInserir.setString(2, novo.getModelo());
+			psInserir.setInt(3, novo.getQuantidade());
+			psInserir.setInt(4, novo.getCódigo());
+			psInserir.execute();
+			psInserir.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 	}
 
 	public void salvar(Produto novo) {
