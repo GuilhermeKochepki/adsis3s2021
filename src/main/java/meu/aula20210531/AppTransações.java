@@ -6,13 +6,17 @@ import java.sql.PreparedStatement;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.swing.JOptionPane;
+
 public class AppTransações {
 
 	public static void main(String[] args) {
 		
 		try {
-			Connection conexão = DriverManager.getConnection("jdbc:h2:~/transações2", "sa", "");
-			
+			//Connection conexão = DriverManager.getConnection("jdbc:h2:~/transações2", "sa", "");
+			//conexão.close();
+			Connection conexão = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/transações2", "sa", "");
+			conexão.setAutoCommit(false);			
 			PreparedStatement psCreate = conexão.prepareStatement("create table if not exists livro("
 					+ "id char(36) primary key,"
 					+ "titulo varchar(255) unique not null,"
@@ -23,18 +27,32 @@ public class AppTransações {
 					+ ")");
 			psCreate.execute();
 			psCreate.close();
-			inserirUmLivro( 
+			conexão.commit();
+			
+			for (int i = 0; i < 1000; i++) {
+				inserirUmLivro( 
 					conexão,
 					UUID.randomUUID().toString(),
-					"Java Como Programar", 
+					"Java Como Programar" + System.nanoTime(), 
 					true,
 					125.77,
 					275,
 					new Date());
+			}
+			//JOptionPane.showMessageDialog(null, "Opa, mil inserts realizados, mas ainda sem commit!");
+			int opção = JOptionPane.showConfirmDialog(null, "Deseja confirmar a transação?");
+			if (opção == JOptionPane.YES_OPTION) {
+				conexão.commit();
+				System.out.println("Commitado");
+			} else if (opção == JOptionPane.NO_OPTION) {
+				conexão.rollback();
+				System.out.println("Arregou");
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();	
 		}
-		System.out.println("foi");
+		System.out.println("Foi.");
 	}
 
 	private static void inserirUmLivro(
