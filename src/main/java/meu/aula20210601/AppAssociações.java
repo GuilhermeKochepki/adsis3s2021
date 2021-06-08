@@ -3,8 +3,11 @@ package meu.aula20210601;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.swing.JOptionPane;
@@ -13,8 +16,8 @@ public class AppAssociações {
 	
 	public static void main(String[] args) {
 		try {
-//			Connection conexão = DriverManager.getConnection("jdbc:h2:~/transações2", "sa", "");
-//			conexão.close();
+			//Connection conexão = DriverManager.getConnection("jdbc:h2:~/transações2", "sa", "");
+			//conexão.close();
 			Connection conexão = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/transações2", "sa", "");
 			conexão.setAutoCommit(false);
 			
@@ -35,18 +38,46 @@ public class AppAssociações {
 			inserirUmAutorLivro(conexão, idAna, idChurrascoArgentino);
 			inserirUmAutorLivro(conexão, idCarlos, idChurrascoArgentino);
 			
-			inserirUmAutorLivro(conexão, idAna, idNovaCozinha);			
+			inserirUmAutorLivro(conexão, idAna, idNovaCozinha);	
 			conexão.commit();
+			
 			//Atividade: implementar um método que recupere os autores de um livro com base neste select:
 			/*SELECT L.TITULO, A.NOME 
                         FROM LIVRO L 
               INNER JOIN AUTOR_LIVRO AL ON AL.LIVRO_ID = L.ID 
               INNER JOIN AUTOR A ON AL.AUTOR_ID = A.ID			 
               */
+			
+			List<String> nomesDosAutores = recuperarAutores(conexão, idChurrascoArgentino);
+			for (String nomeDoAutor : nomesDosAutores) {
+				System.out.println("> " + nomeDoAutor);
+			}
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.out.println("Foi.");
+	}
+
+	private static List<String> recuperarAutores(Connection conexão, String id) throws SQLException {
+		List<String> nomesDosAutores = new ArrayList<>();
+		String select = "SELECT L.TITULO, A.NOME \r\n"
+				+ "                        FROM LIVRO L \r\n"
+				+ "              INNER JOIN AUTOR_LIVRO AL ON AL.LIVRO_ID = L.ID \r\n"
+				+ "              INNER JOIN AUTOR A ON AL.AUTOR_ID = A.ID"
+				+ "				 WHERE L.ID = ?	"
+				+ "";
+		PreparedStatement psJoinAutores = conexão.prepareStatement(select);
+		psJoinAutores.setString(1, id);
+		ResultSet rsJoinAutores = psJoinAutores.executeQuery();
+		while (rsJoinAutores.next()) {
+			nomesDosAutores.add(rsJoinAutores.getString("nome"));
+		}
+		rsJoinAutores.close();
+		psJoinAutores.close();
+		
+		return nomesDosAutores;
 	}
 
 	private static void criarTabelaAutorLivro(Connection conexão) throws SQLException {
@@ -63,7 +94,7 @@ public class AppAssociações {
 	private static void criarTabelaAutor(Connection conexão) throws SQLException {
 		PreparedStatement psCreate = conexão.prepareStatement("create table if not exists autor ("
 				+ "id char(36) primary key,"
-				+ "nome varchar(255) unique not null"
+				+ "nome varchar(255) not null"
 				+ ")");
 		psCreate.execute();
 		psCreate.close();			
@@ -99,7 +130,7 @@ public class AppAssociações {
 	private static void criarTabelaLivro(Connection conexão) throws SQLException {
 		PreparedStatement psCreate = conexão.prepareStatement("create table if not exists livro ("
 				+ "id char(36) primary key,"
-				+ "titulo varchar(255) unique not null,"
+				+ "titulo varchar(255) not null,"
 				+ "ainda_publicado boolean not null,"
 				+ "preco numeric(15,2) not null,"
 				+ "numero_de_paginas numeric(8) not null,"
